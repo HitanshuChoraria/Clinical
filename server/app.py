@@ -136,7 +136,11 @@ def state() -> Dict[str, Any]:
         return {"status": "not_initialized"}
     return _env.state()
 
-
+def main():
+    import uvicorn
+    port = int(os.environ.get("PORT", 7860))
+    uvicorn.run(app, host="0.0.0.0", port=port)
+    
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 7860))
