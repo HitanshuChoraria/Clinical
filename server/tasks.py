@@ -377,7 +377,7 @@ def grade_task2(findings: List[Dict], rationale: str) -> Tuple[float, str]:
     - AE-004 and AE-002: additional 5 pts for identifying SAE reporting failure
     - False positive (flagging AE-001, AE-003, AE-006): -8 pts each
     """
-    max_pts = 100
+    max_pts = 80
     pts = 0
     feedback_parts = []
 
@@ -409,8 +409,18 @@ def grade_task2(findings: List[Dict], rationale: str) -> Tuple[float, str]:
         return " ".join(descs)
 
     def ae_flagged(ae_id):
-        d = get_ae_descs(ae_id)
-        return len(d) > 0
+        ae_to_subj = {
+        "AE-002": "PT-202", "AE-004": "PT-204",
+        "AE-005": "PT-205", "AE-007": "PT-207",
+        "AE-001": "PT-201", "AE-003": "PT-203", "AE-006": "PT-206",
+    }
+        sid = ae_to_subj.get(ae_id, "")
+        for f in ae_findings:
+            subj = str(f.get("subject_id", "")).strip().upper()
+            desc = _normalize(f.get("description", "") + " " + f.get("recommendation", ""))
+            if subj == sid or ae_id.lower() in desc:
+                return True
+        return False
 
     # AE-002: dyspnea — Grade 2→3, SAE, AESI
     if ae_flagged("AE-002"):
@@ -467,8 +477,8 @@ def grade_task2(findings: List[Dict], rationale: str) -> Tuple[float, str]:
             feedback_parts.append(f"✗ {ae_id} incorrectly flagged as misclassified (-8)")
 
     if fp_penalty == 0:
-        pts += 33  # baseline for correctly leaving good AEs alone
-        feedback_parts.append("✓ No false positives on correctly classified AEs (+33)")
+        pts += 10
+        feedback_parts.append("✓ No false positives on correctly classified AEs (+10)")
 
     score = max(0.01, min(0.99, pts / max_pts))
     feedback = f"Task 2 Score: {pts}/{max_pts} ({score:.2f})\n" + "\n".join(feedback_parts)
@@ -620,27 +630,28 @@ def grade_task3(findings: List[Dict], rationale: str) -> Tuple[float, str]:
     pts = 0
     feedback_parts = []
 
-    all_text = rationale
-    for f in findings:
-        all_text += " " + f.get("description", "") + " " + f.get("recommendation", "")
-    all_text = _normalize(all_text)
+    # Split scoring: 60% from structured findings, 40% from rationale
+    findings_text = _normalize(" ".join(
+        f.get("description", "") + " " + f.get("recommendation", "")
+        for f in findings
+    ))
+    rationale_text = _normalize(rationale)
+
+    # Penalize essay-dumping: if fewer than 4 findings, reduce findings weight
+    findings_weight = 0.6 if len(findings) >= 4 else 0.3
 
     for issue_key, issue in TASK3_GROUND_TRUTH_ISSUES.items():
         keywords = issue["keywords"]
         weight = issue["weight"]
-        hits = sum(1 for k in keywords if k in all_text)
-        hit_rate = hits / len(keywords)
-
-        if hit_rate >= 0.5:
-            earned = int(weight * min(1.0, hit_rate + 0.2))
-            pts += earned
-            feedback_parts.append(f"✓ [{issue['severity'].upper()}] {issue_key}: identified ({hits}/{len(keywords)} keywords, +{earned})")
-        elif hit_rate >= 0.25:
-            earned = int(weight * 0.4)
-            pts += earned
-            feedback_parts.append(f"~ [{issue['severity'].upper()}] {issue_key}: partially identified (+{earned})")
-        else:
-            feedback_parts.append(f"✗ [{issue['severity'].upper()}] {issue_key}: missed (0/{weight})")
+        
+        hits_findings = sum(1 for k in keywords if k in findings_text)
+        hits_rationale = sum(1 for k in keywords if k in rationale_text)
+        
+        # Weighted hit rate
+        hit_rate = (
+            (hits_findings / len(keywords)) * findings_weight +
+            (hits_rationale / len(keywords)) * (1 - findings_weight)
+        )
 
     # Bonus for structured, actionable recommendations
     n_recommendations = sum(
