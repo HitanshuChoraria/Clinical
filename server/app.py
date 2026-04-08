@@ -1,17 +1,3 @@
-"""
-FastAPI server for the ClinicalTrialEnv OpenEnv environment.
-
-Endpoints (OpenEnv spec compliant):
-  GET  /health      -> {"status": "healthy"}
-  GET  /metadata    -> name, description, version, tasks
-  GET  /schema      -> action, observation, state schemas
-  GET  /tasks       -> list tasks with graders
-  POST /reset       -> reset episode, return initial observation
-  POST /step        -> take action, return step result
-  GET  /state       -> return current internal state
-  POST /mcp         -> JSON-RPC 2.0 endpoint (OpenEnv runtime check)
-"""
-
 from __future__ import annotations
 
 import os
@@ -34,7 +20,6 @@ app = FastAPI(
     version="1.0.0",
 )
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -44,23 +29,29 @@ app.add_middleware(
 
 _env: Optional[ClinicalTrialEnv] = None
 
+
 @app.get("/")
 def root():
     return {"status": "healthy", "environment": "ClinicalTrialEnv", "version": "1.0.0"}
 
 
+# ---------------------- Models ----------------------
+
 class ResetRequest(BaseModel):
     task: str = "eligibility_screening"
+
 
 class StepRequest(BaseModel):
     findings: List[Dict[str, Any]] = []
     rationale: str = ""
+
 
 class ResetResponse(BaseModel):
     observation: Dict[str, Any]
     reward: float
     done: bool
     info: Dict[str, Any]
+
 
 class StepResponse(BaseModel):
     observation: Dict[str, Any]
@@ -69,26 +60,25 @@ class StepResponse(BaseModel):
     info: Dict[str, Any]
 
 
-# ---------------------------------------------------------------------------
-# OpenEnv required runtime endpoints
-# ---------------------------------------------------------------------------
+# ---------------------- Endpoints ----------------------
 
 @app.get("/health")
 def health():
-    """OpenEnv spec: must return {"status": "healthy"}"""
-    return {"status": "healthy", "environment": "ClinicalTrialEnv", "version": "1.0.0"}
+    return {
+        "status": "healthy",
+        "environment": "ClinicalTrialEnv",
+        "version": "1.0.0"
+    }
 
 
 @app.get("/metadata")
 def metadata():
-    """OpenEnv spec: must return name and description."""
     return {
         "name": "clinical-trial-env",
         "description": (
             "OpenEnv environment for Clinical Trial Protocol Review. "
             "AI agents act as medical monitors — screening patients for eligibility "
-            "violations, classifying adverse event severity (CTCAE), and reviewing "
-            "protocol amendments for GCP/ICH compliance."
+            "violations, classifying adverse event severity, and reviewing protocol amendments."
         ),
         "version": "1.0.0",
         "tasks": [
@@ -98,7 +88,8 @@ def metadata():
                 "description": t["description"],
                 "max_steps": t["max_steps"],
                 "has_grader": True,
-                "score_range": [0.0, 1.0],
+                "grader": t.get("grader", "defined"),
+                "score_range": [0.01, 0.99],   # ✅ FIXED
             }
             for t in TASKS.values()
         ],
@@ -107,11 +98,9 @@ def metadata():
 
 @app.get("/schema")
 def schema():
-    """OpenEnv spec: must return action, observation, and state schemas."""
     return {
         "action": {
             "type": "object",
-            "description": "Structured clinical review findings",
             "properties": {
                 "findings": {
                     "type": "array",
@@ -145,7 +134,6 @@ def schema():
         },
         "observation": {
             "type": "object",
-            "description": "Clinical trial data presented to the agent",
             "properties": {
                 "task_name": {"type": "string"},
                 "protocol_summary": {"type": "string"},
@@ -159,13 +147,12 @@ def schema():
         },
         "state": {
             "type": "object",
-            "description": "Internal environment state",
             "properties": {
                 "task_name": {"type": "string"},
                 "step": {"type": "integer"},
                 "done": {"type": "boolean"},
                 "current_score": {"type": "number"},
-                "n_findings_accumulated": {"type": "integer"},
+                "n_findings": {"type": "integer"},
                 "history": {"type": "array"},
                 "elapsed_seconds": {"type": "number"},
             },
@@ -175,7 +162,6 @@ def schema():
 
 @app.post("/mcp")
 def mcp(payload: Dict[str, Any] = {}):
-    """JSON-RPC 2.0 endpoint required by OpenEnv runtime validator."""
     method = payload.get("method", "")
     req_id = payload.get("id", 1)
 
@@ -198,12 +184,12 @@ def mcp(payload: Dict[str, Any] = {}):
                 "tools": [
                     {
                         "name": "reset",
-                        "description": "Reset the environment to a new task episode",
+                        "description": "Reset environment",
                         "inputSchema": {"type": "object", "properties": {"task": {"type": "string"}}},
                     },
                     {
                         "name": "step",
-                        "description": "Submit findings and advance the episode",
+                        "description": "Submit findings",
                         "inputSchema": {
                             "type": "object",
                             "properties": {
@@ -237,7 +223,8 @@ def list_tasks():
                 "description": t["description"],
                 "max_steps": t["max_steps"],
                 "has_grader": True,
-                "score_range": [0.0, 1.0],
+                "grader": t.get("grader", "defined"),
+                "score_range": [0.01, 0.99],   # ✅ FIXED
             }
             for t in TASKS.values()
         ]
@@ -247,13 +234,18 @@ def list_tasks():
 @app.post("/reset")
 def reset(req: ResetRequest = None) -> ResetResponse:
     global _env
+
     if req is None:
         req = ResetRequest()
+
     task = req.task if req and req.task else "eligibility_screening"
+
     if task not in TASKS:
-        raise HTTPException(status_code=400, detail=f"Unknown task '{task}'. Available: {list(TASKS.keys())}")
+        raise HTTPException(status_code=400, detail=f"Unknown task '{task}'")
+
     _env = ClinicalTrialEnv(task_name=task)
     result = _env.reset()
+
     return ResetResponse(
         observation=result.observation.model_dump(),
         reward=result.reward,
@@ -265,12 +257,20 @@ def reset(req: ResetRequest = None) -> ResetResponse:
 @app.post("/step")
 def step(req: StepRequest) -> StepResponse:
     global _env
+
     if _env is None:
         raise HTTPException(status_code=400, detail="Call /reset first.")
+
     if _env._done:
-        raise HTTPException(status_code=400, detail="Episode done. Call /reset.")
-    action = ClinicalTrialAction(findings=req.findings, rationale=req.rationale)
+        raise HTTPException(status_code=400, detail="Episode done.")
+
+    action = ClinicalTrialAction(
+        findings=req.findings,
+        rationale=req.rationale
+    )
+
     result = _env.step(action)
+
     return StepResponse(
         observation=result.observation.model_dump(),
         reward=result.reward,
@@ -282,8 +282,10 @@ def step(req: StepRequest) -> StepResponse:
 @app.get("/state")
 def state() -> Dict[str, Any]:
     global _env
+
     if _env is None:
         return {"status": "not_initialized"}
+
     return _env.state()
 
 

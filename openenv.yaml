@@ -5,6 +5,7 @@ description: >
   clinical trial data — screening patients for eligibility violations,
   classifying adverse event severity, and reviewing protocol amendments for
   safety and regulatory compliance concerns.
+
 tags:
   - openenv
   - healthcare
@@ -16,39 +17,39 @@ tags:
 tasks:
   - name: eligibility_screening
     difficulty: easy
-    has_grader: true 
     description: >
       Review 5 patient records for ONCO-2024-301 (Phase II oncology trial) and
       identify all eligibility violations against inclusion/exclusion criteria.
       4 of 5 patients have violations; 1 is correctly enrolled. Partial credit
       for finding violations, penalty for false positives.
+    grader: server.graders.eligibility_grader
     max_steps: 3
-    score_range: [0.0, 1.0]
+    score_range: [0.01, 0.99]
     expected_baseline_score: 0.35
 
   - name: ae_classification
     difficulty: medium
-    has_grader: true 
     description: >
       Review 7 adverse event reports in CARD-2024-112 (Phase III cardiology trial)
       and identify all misclassifications by severity grade. 4 of 7 AEs are
       misclassified; agents must identify wrong grades, suggest corrections,
       and flag missing SAE reports. Penalized for false positives.
+    grader: server.graders.ae_grader
     max_steps: 4
-    score_range: [0.0, 1.0]
+    score_range: [0.01, 0.99]
     expected_baseline_score: 0.22
 
   - name: protocol_amendment_review
     difficulty: hard
-    has_grader: true 
     description: >
       Comprehensively review 6 proposed protocol amendments for NEURO-2024-450
       (Phase II psychiatric trial for treatment-resistant depression). Identify
       critical safety issues, GCP compliance failures, and statistical gaps.
       8 ground-truth issues with weighted scoring. Requires deep domain knowledge
       of ICH guidelines, FDA/EMA requirements, and psychiatric trial design.
+    grader: server.graders.protocol_grader
     max_steps: 5
-    score_range: [0.0, 1.0]
+    score_range: [0.01, 0.99]
     expected_baseline_score: 0.15
 
 action_space:
@@ -87,11 +88,11 @@ observation_space:
 
 reward:
   type: continuous
-  range: [-0.1, 1.0]
+  range: [0.01, 0.99]
   description: >
     Incremental reward per step = improvement in grader score since last step.
-    Final reward accumulates to normalized score in [0.0, 1.0].
-    Empty/trivial actions incur -0.05 penalty.
+    Final reward accumulates to normalized score strictly within (0,1).
+    Empty/trivial actions incur small penalty but never reach 0.
 
 endpoints:
   health: /health
@@ -99,7 +100,7 @@ endpoints:
   tasks: /tasks
   reset: /reset
   step: /step
-  state: /state      
+  state: /state
   mcp: /mcp
 
 docker:
