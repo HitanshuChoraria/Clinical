@@ -33,9 +33,7 @@ app = FastAPI(
     description="OpenEnv environment for Clinical Trial Protocol Review.",
     version="1.0.0",
 )
-@app.get("/")
-def root():
-    return {"status": "healthy", "environment": "ClinicalTrialEnv", "version": "1.0.0"}
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -45,6 +43,10 @@ app.add_middleware(
 )
 
 _env: Optional[ClinicalTrialEnv] = None
+
+@app.get("/")
+def root():
+    return {"status": "healthy", "environment": "ClinicalTrialEnv", "version": "1.0.0"}
 
 
 class ResetRequest(BaseModel):
