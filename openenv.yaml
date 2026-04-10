@@ -98,7 +98,7 @@ observation_space:
 
 reward:
   type: continuous
-  range: [0.01, 0.99]
+  range: [0.0, 1.0]
   description: >
     Incremental reward per step = improvement in grader score since last step.
     Final reward accumulates to normalized score strictly within (0,1).

@@ -46,8 +46,7 @@ class ClinicalTrialObservation(BaseModel):
 class StepResult(BaseModel):
     observation: ClinicalTrialObservation
 
-    # ⚠️ MUST NOT BE 0
-    reward: float = 0.01
+    reward: float = 0.0
 
     done: bool
     info: Dict[str, Any] = Field(default_factory=dict)

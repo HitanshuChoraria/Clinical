@@ -77,19 +77,19 @@ class ClinicalTrialEnv:
             new_score = result
             feedback = ""
 
-        # Clamp score inside [0.0, 1.0]
+        # Clamp score strictly inside [0.0, 1.0]
         new_score = float(new_score)
         new_score = min(max(new_score, 0.0), 1.0)
 
-        # Reward = improvement
+        # Reward = incremental improvement over previous score
         reward = new_score - self._last_score
 
-        # Meaningful reward (no manual clamping to positive)
-        reward = min(max(reward, -1.0), 1.0)
+        # Clamp reward to valid [0.0, 1.0] range per OpenEnv spec
+        reward = min(max(reward, 0.0), 1.0)
 
-        # Penalty for empty action (relative to current)
+        # Minimal penalty for empty actions — stays within valid range
         if not action.findings and not action.rationale.strip():
-            reward = -0.05
+            reward = 0.0
 
         max_steps = self._task["max_steps"]
         done = self._step >= max_steps
