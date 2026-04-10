@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClinicalTrialEnv | AI Monitor Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🩺</text></svg>">
+</head>
+<body>
+    <div id="app">
+        <!-- Sidebar -->
+        <aside>
+            <div class="logo">
+                <div class="logo-icon">C</div>
+                ClinicalTrial<span>Env</span>
+            </div>
+            
+            <nav>
+                <p style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 1rem; letter-spacing: 2px;">Available Tasks</p>
+                <ul class="task-list" id="task-list">
+                    <!-- Tasks will be injected here -->
+                    <div class="loading">Fetching environments...</div>
+                </ul>
+            </nav>
+
+            <div style="margin-top: auto; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px; font-size: 0.75rem;">
+                <p style="color: var(--accent-cyan); font-weight: 600;">System Status</p>
+                <p style="color: var(--success);">● Active Monitor v1.0.0</p>
+                <p id="env-status" style="margin-top: 0.5rem; color: var(--text-secondary);">Connecting to backend...</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main>
+            <header>
+                <div class="header-title">
+                    <h1 id="current-task-name">Medical Monitoring</h1>
+                    <div class="dashboard-pills">
+                        <span class="pill" id="task-difficulty">Difficulty: --</span>
+                        <span class="pill" id="task-step">Step: 0/--</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-primary" style="padding: 0.75rem 1.5rem; font-size: 0.8rem;" onclick="resetTask()">Reset Environment</button>
+                </div>
+            </header>
+
+            <div class="dashboard-grid">
+                <!-- Data Viewer Section -->
+                <div class="content-card animate-fade">
+                    <div class="tabs" id="tabs">
+                        <div class="tab active" data-tab="protocol">Protocol</div>
+                        <div class="tab" data-tab="records">Subject Records</div>
+                        <div class="tab" data-tab="events">Adverse Events</div>
+                    </div>
+
+                    <div class="data-viewer" id="data-viewer">
+                        <div style="opacity: 0.5;">Select a task to load clinical data...</div>
+                    </div>
+                </div>
+
+                <!-- Agent Panel Section -->
+                <div class="agent-panel">
+                    <div class="agent-card animate-fade" style="margin-bottom: 2rem;">
+                        <div class="input-group">
+                            <label>Structured Findings (JSON)</label>
+                            <textarea id="findings-input" rows="8" placeholder='[{"finding_type": "eligibility_violation", "subject_id": "PT-001", "severity": "critical", "description": "...", "recommendation": "..."}]'></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label>Review Rationale</label>
+                            <textarea id="rationale-input" rows="3" placeholder="Explain your assessment..."></textarea>
+                        </div>
+                        <button class="btn-primary" id="submit-btn" onclick="submitStep()">Submit Findings</button>
+                    </div>
+
+                    <div class="content-card animate-fade" id="results-panel" style="display: none;">
+                        <h3 style="font-size: 0.9rem; margin-bottom: 1rem;">Grader Consensus</h3>
+                        <div class="score-circle">
+                            <svg class="score-progress">
+                                <circle cx="50" cy="50" r="45" id="progress-circle"></circle>
+                            </svg>
+                            <span id="score-value">0</span>%
+                        </div>
+                        <p style="text-align: center; font-size: 0.8rem; color: var(--text-secondary); margin-top: 1rem;">Environment Reward: <span id="reward-value" style="color: var(--success); font-weight: 700;">+0.00</span></p>
+                        
+                        <div style="margin-top: 1.5rem;">
+                            <p style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 0.5rem;">FEEDBACK LOG</p>
+                            <div class="feedback-log" id="feedback-log"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>

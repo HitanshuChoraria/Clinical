@@ -10,6 +10,8 @@ from pydantic import BaseModel
 
 sys.path.insert(0, os.path.dirname(__file__))
 
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from environment import ClinicalTrialEnv
 from models import ClinicalTrialAction
 from tasks import TASKS
@@ -19,6 +21,10 @@ app = FastAPI(
     description="OpenEnv environment for Clinical Trial Protocol Review.",
     version="1.0.0",
 )
+
+# Mount static files
+static_path = os.path.join(os.path.dirname(__file__), "static")
+app.mount("/static", StaticFiles(directory=static_path), name="static")
 
 app.add_middleware(
     CORSMiddleware,
@@ -32,7 +38,20 @@ _env: Optional[ClinicalTrialEnv] = None
 
 @app.get("/")
 def root():
+    index_path = os.path.join(static_path, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
     return {"status": "healthy", "environment": "ClinicalTrialEnv", "version": "1.0.0"}
+
+
+@app.get("/style.css")
+def get_css():
+    return FileResponse(os.path.join(static_path, "style.css"))
+
+
+@app.get("/main.js")
+def get_js():
+    return FileResponse(os.path.join(static_path, "main.js"))
 
 
 # ---------------------- Models ----------------------
