@@ -3,96 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClinicalTrialEnv | AI Monitor Dashboard</title>
+    <title>ClinicalTrialEnv | Medical Monitor AI Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🩺</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="app">
         <!-- Sidebar -->
-        <aside>
-            <div class="logo">
-                <div class="logo-icon">C</div>
-                ClinicalTrial<span>Env</span>
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07L19.07 4.93"/>
+                        </svg>
+                    </div>
+                    <h1>Monitor<span>AI</span></h1>
+                </div>
             </div>
             
-            <nav>
-                <p style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 1rem; letter-spacing: 2px;">Available Tasks</p>
-                <ul class="task-list" id="task-list">
-                    <!-- Tasks will be injected here -->
-                    <div class="loading">Fetching environments...</div>
-                </ul>
-            </nav>
+            <div class="sidebar-content">
+                <div class="section-label">Operational Environments</div>
+                <nav>
+                    <ul class="task-list" id="task-list">
+                        <!-- Tasks go here -->
+                        <div class="loader-container">
+                            <div class="loader"></div>
+                            <span>Initializing Modules...</span>
+                        </div>
+                    </ul>
+                </nav>
+            </div>
 
-            <div style="margin-top: auto; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px; font-size: 0.75rem;">
-                <p style="color: var(--accent-cyan); font-weight: 600;">System Status</p>
-                <p style="color: var(--success);">● Active Monitor v1.0.0</p>
-                <p id="env-status" style="margin-top: 0.5rem; color: var(--text-secondary);">Connecting to backend...</p>
+            <div class="sidebar-footer">
+                <div class="status-card">
+                    <div class="status-indicator">
+                        <span class="pulse"></span>
+                        <span id="env-status">System Standby</span>
+                    </div>
+                    <div class="version-tag">v2.1.0-stable</div>
+                </div>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main>
-            <header>
-                <div class="header-title">
-                    <h1 id="current-task-name">Medical Monitoring</h1>
-                    <div class="dashboard-pills">
-                        <span class="pill" id="task-difficulty">Difficulty: --</span>
-                        <span class="pill" id="task-step">Step: 0/--</span>
-                    </div>
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="task-info">
+                    <div class="breadcrumb">Environment / Clinical Trial / <span id="breadcrumb-task">--</span></div>
+                    <h2 id="current-task-name">System Offline</h2>
                 </div>
-                <div class="header-actions">
-                    <button class="btn-primary" style="padding: 0.75rem 1.5rem; font-size: 0.8rem;" onclick="resetTask()">Reset Environment</button>
+                
+                <div class="session-stats">
+                    <div class="stat-pill">
+                        <span class="label">Difficulty</span>
+                        <span id="task-difficulty" class="value">--</span>
+                    </div>
+                    <div class="stat-pill">
+                        <span class="label">Iteration</span>
+                        <span id="task-step" class="value">0 / 0</span>
+                    </div>
+                    <button class="btn-secondary" onclick="resetTask()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                        Refresh
+                    </button>
                 </div>
             </header>
 
-            <div class="dashboard-grid">
-                <!-- Data Viewer Section -->
-                <div class="content-card animate-fade">
-                    <div class="tabs" id="tabs">
-                        <div class="tab active" data-tab="protocol">Protocol</div>
-                        <div class="tab" data-tab="records">Subject Records</div>
-                        <div class="tab" data-tab="events">Adverse Events</div>
-                    </div>
-
-                    <div class="data-viewer" id="data-viewer">
-                        <div style="opacity: 0.5;">Select a task to load clinical data...</div>
+            <div class="layout-grid">
+                <!-- Left Column: Data Intelligence -->
+                <div class="data-section">
+                    <div class="glass-card full-height">
+                        <div class="card-header">
+                            <div class="tabs" id="tabs">
+                                <button class="tab-btn active" data-tab="protocol">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+                                    Protocol
+                                </button>
+                                <button class="tab-btn" data-tab="records">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                    Subjects
+                                </button>
+                                <button class="tab-btn" data-tab="events">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                                    Adverse Events
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-content data-viewer" id="data-viewer">
+                            <div class="placeholder-content">
+                                <div class="icon-orb">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
+                                </div>
+                                <p>Select an operational task to begin clinical review</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Agent Panel Section -->
-                <div class="agent-panel">
-                    <div class="agent-card animate-fade" style="margin-bottom: 2rem;">
-                        <div class="input-group">
-                            <label>Structured Findings (JSON)</label>
-                            <textarea id="findings-input" rows="8" placeholder='[{"finding_type": "eligibility_violation", "subject_id": "PT-001", "severity": "critical", "description": "...", "recommendation": "..."}]'></textarea>
+                <!-- Right Column: Agent Workflow -->
+                <div class="workflow-section">
+                    <!-- Action Panel -->
+                    <div class="glass-card active-workflow">
+                        <div class="card-header">
+                            <h3>Findings Submission</h3>
+                            <div class="header-tag">JSON Schema Validated</div>
                         </div>
-                        <div class="input-group">
-                            <label>Review Rationale</label>
-                            <textarea id="rationale-input" rows="3" placeholder="Explain your assessment..."></textarea>
+                        <div class="card-content">
+                            <div class="form-group">
+                                <div class="label-row">
+                                    <label>Structured Observations</label>
+                                    <button class="helper-btn" onclick="insertFindingTemplate()">+ Template</button>
+                                </div>
+                                <div class="code-editor-container">
+                                    <textarea id="findings-input" spellcheck="false" placeholder="Enter findings as JSON array..."></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Clinical Rationale</label>
+                                <textarea id="rationale-input" rows="3" placeholder="Explain the reasoning behind these assessments..."></textarea>
+                            </div>
+
+                            <button class="btn-primary w-full" id="submit-btn" onclick="submitStep()">
+                                <span class="btn-text">Execute Analysis</span>
+                                <div class="btn-glow"></div>
+                            </button>
                         </div>
-                        <button class="btn-primary" id="submit-btn" onclick="submitStep()">Submit Findings</button>
                     </div>
 
-                    <div class="content-card animate-fade" id="results-panel" style="display: none;">
-                        <h3 style="font-size: 0.9rem; margin-bottom: 1rem;">Grader Consensus</h3>
-                        <div class="score-circle">
-                            <svg class="score-progress">
-                                <circle cx="50" cy="50" r="45" id="progress-circle"></circle>
-                            </svg>
-                            <span id="score-value">0</span>%
+                    <!-- Performance Panel -->
+                    <div class="glass-card performance-panel" id="results-panel" style="display: none;">
+                        <div class="card-header">
+                            <h3>Grader Metrics</h3>
                         </div>
-                        <p style="text-align: center; font-size: 0.8rem; color: var(--text-secondary); margin-top: 1rem;">Environment Reward: <span id="reward-value" style="color: var(--success); font-weight: 700;">+0.00</span></p>
-                        
-                        <div style="margin-top: 1.5rem;">
-                            <p style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 0.5rem;">FEEDBACK LOG</p>
-                            <div class="feedback-log" id="feedback-log"></div>
+                        <div class="card-content">
+                            <div class="metrics-grid">
+                                <div class="score-meter">
+                                    <svg viewBox="0 0 36 36" class="circular-chart cyan">
+                                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" id="progress-circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <text x="18" y="20.35" class="percentage" id="score-value">0</text>
+                                    </svg>
+                                    <div class="meter-label">Overall Accuracy</div>
+                                </div>
+                                
+                                <div class="reward-stat">
+                                    <div class="label">Step Reward</div>
+                                    <div class="value" id="reward-value">+0.00</div>
+                                </div>
+                            </div>
+
+                            <div class="feedback-container">
+                                <div class="section-label">Automated Feedback Log</div>
+                                <div class="feedback-scroll" id="feedback-log"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </main>
     </div>
+
+    <!-- Notification system -->
+    <div id="notifications"></div>
 
     <script src="main.js"></script>
 </body>

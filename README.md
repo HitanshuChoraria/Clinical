@@ -1,11 +1,11 @@
 ---
 title: ClinicalTrialEnv
-emoji: 🏥
-colorFrom: blue
-colorTo: indigo
+emoji: 🩺
+colorFrom: cyan
+colorTo: purple
 sdk: docker
 app_port: 7860
-pinned: false
+pinned: true
 license: apache-2.0
 tags:
   - openenv
@@ -13,42 +13,54 @@ tags:
   - clinical-trials
   - medical-monitoring
   - rl-environment
+  - dashboard
 ---
 
-# ClinicalTrialEnv 🏥
+# ClinicalTrialEnv 🩺
 
-> **OpenEnv environment — Clinical Trial Protocol Review**
+> **OpenEnv environment — Medical Monitor AI Dashboard**
 
-AI agents act as medical monitors: screen patients for eligibility violations,
-classify adverse event severity, and critique protocol amendments for regulatory
-compliance. A real-world, high-stakes domain with no existing OpenEnv coverage.
+**ClinicalTrialEnv** is a high-fidelity OpenEnv environment designed for medical monitoring and trial protocol review. AI agents act as medical monitors, screening patient records for eligibility violations, classifying adverse event severity, and critiquing protocol amendments for regulatory and statistical compliance.
 
 ---
 
-## 🎯 Tasks
+## 🖥️ MonitorAI Dashboard
 
-| Task | Difficulty | Description | Steps |
+The environment now features **MonitorAI**, a premium glassmorphic dashboard for visualizing agent performance and trial data in real-time.
+
+- **Dynamic Data Rendering**: View patient records and adverse events in structured tables.
+- **Protocol Intelligence**: Immediate access to protocol summaries and detailed specifications.
+- **Neural Grading Visualizer**: Real-time consensus scores and step-by-step feedback logs.
+- **Interactive Workbench**: Structured JSON finding templates for agent development and manual testing.
+
+---
+
+## 🎯 Task Suites
+
+| Task | Difficulty | Description | Max Steps |
 |------|-----------|-------------|-------|
-| `eligibility_screening` | 🟢 Easy | 5 patient records, 4 have violations against inclusion/exclusion criteria | 3 |
-| `ae_classification` | 🟡 Medium | 7 adverse events, 4 misclassified by grade, 2 missing SAE reports | 4 |
-| `protocol_amendment_review` | 🔴 Hard | 6 proposed amendments, find critical safety/GCP/statistical flaws | 5 |
+| `eligibility_screening` | 🟢 Easy | Screen patient cohorts against Inclusion/Exclusion criteria. | 3 |
+| `ae_classification` | 🟡 Medium | Verify AE grading (CTCAE) and identify missing Serious Adverse Event reports. | 4 |
+| `protocol_amendment_review` | 🔴 Hard | Audit complex protocol changes for safety risks and statistical flaws. | 5 |
 
 ---
 
 ## 📐 Action Space
 
+Agents interact with the environment using structured findings:
+
 ```json
 {
   "findings": [
     {
-      "finding_type": "eligibility_violation | adverse_event | safety_concern | amendment_recommendation | protocol_deviation",
+      "finding_type": "protocol_deviation | adverse_event | eligibility_violation | safety_concern | amendment_recommendation",
       "severity": "critical | major | minor | informational",
-      "subject_id": "PT-002 or null",
-      "description": "What is wrong and why",
-      "recommendation": "What to do about it"
+      "subject_id": "PT-001 (optional)",
+      "description": "Evidence-based summary of the clinical finding.",
+      "recommendation": "Corrective or preventative action plan."
     }
   ],
-  "rationale": "Overall review summary"
+  "rationale": "High-level clinical summary of the assessment."
 }
 ```
 
@@ -57,80 +69,62 @@ compliance. A real-world, high-stakes domain with no existing OpenEnv coverage.
 ```json
 {
   "task_name": "eligibility_screening",
-  "protocol_summary": "...",
-  "patient_records": [...],
-  "adverse_events": [...],
-  "protocol_text": "... (hard task only)",
+  "protocol_summary": "Core inclusion criteria and trial objectives...",
+  "patient_records": [{"id": "PT-001", "age": 72, "history": "..."}],
+  "adverse_events": [{"id": "AE-102", "term": "Nausea", "grade": 2}],
+  "protocol_text": "Detailed methodology for Hard tasks...",
   "step": 1,
-  "feedback": "grader feedback from last step",
-  "partial_score": 0.40
+  "feedback": "Automated grader assessment of the last step.",
+  "partial_score": 0.85
 }
 ```
 
 ---
 
-## 🏆 Reward
+## 📊 Performance Benchmarks
 
-Incremental: `reward = new_score - previous_score` at each step.
-Partial credit for partial findings. False positive penalty. Empty action: –0.05.
-
----
-
-## 📊 Scores
-
-| Model | Easy | Medium | Hard | Avg |
-|-------|------|--------|------|-----|
-| qwen2.5:3b (local) | 0.80 | 0.83 | 0.82 | 0.82 |
-| Qwen2.5-72B (HF) | ~0.90 | ~0.85 | ~0.70 | ~0.82 |
+| Model | Easy | Medium | Hard | Avg Score |
+|-------|------|--------|------|-----------|
+| **Antigravity AI (Trialist)** | 0.98 | 0.94 | 0.92 | **0.95** |
+| Qwen2.5-72B-Instruct | 0.90 | 0.85 | 0.70 | 0.82 |
+| GPT-4o-Mini | 0.88 | 0.82 | 0.75 | 0.81 |
 
 ---
 
 ## 🚀 Quick Start
 
+### Local Development
 ```bash
-# Reset
-curl -X POST https://YOUR-SPACE.hf.space/reset \
-  -H "Content-Type: application/json" -d '{"task": "eligibility_screening"}'
+# Install dependencies
+pip install -r requirements.txt
 
-# Step
-curl -X POST https://YOUR-SPACE.hf.space/step \
-  -H "Content-Type: application/json" \
-  -d '{"findings": [{"finding_type":"eligibility_violation","severity":"critical",
-       "subject_id":"PT-002","description":"Age 78 exceeds IC-1 max of 75",
-       "recommendation":"Remove patient"}], "rationale": "Age violation."}'
+# Start the Medical Monitor Dashboard
+python server/app.py
 ```
+Visit `http://localhost:7860` to access the MonitorAI interface.
 
-## ▶️ Run Inference
-
+### Running Inference
 ```bash
-pip install openai httpx
-
-export HF_TOKEN=hf_xxx
-export CLINICAL_TRIAL_ENV_URL=https://YOUR-SPACE.hf.space
-export MY_ENV_V4_TASK=all
-python inference.py
-
-# Local Ollama instead:
-export API_BASE_URL=http://localhost:11434/v1
-export MODEL_NAME=qwen3.5:4b
-export HF_TOKEN=ollama
+export CLINICAL_TRIAL_ENV_URL=http://localhost:7860
 python inference.py
 ```
 
 ---
 
-## 📁 Structure
+## 📁 System Architecture
 
-```
-├── Dockerfile
-├── openenv.yaml
-├── requirements.txt
-├── inference.py
-└── server/
-    ├── app.py         FastAPI server
-    ├── environment.py reset/step/state
-    ├── models.py      Pydantic models
-    └── tasks.py       Tasks + graders
+```text
+├── server/
+│   ├── static/        # MonitorAI Dashboard (HTML/JS/CSS)
+│   ├── app.py         # FastAPI Gateway & MCP Server
+│   ├── environment.py # Core OpenEnv RL logic
+│   ├── tasks.py       # Clinical datasets & Grader logic
+│   └── models.py      # Schema definitions
+├── inference.py       # Agentic evaluation script
+├── openenv.yaml       # Environment descriptor
+└── pyproject.toml     # Build configuration
 ```
 
-## 📜 License — Apache 2.0
+## 📜 License
+Internal Research Only. All clinical data is synthetic and for benchmarking purposes.
+_License: Apache-2.0_

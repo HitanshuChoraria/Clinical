@@ -97,7 +97,7 @@ def log_step(step: int, action: str, reward: float, done: bool, error: Optional[
     done_val  = str(done).lower()
     action_summary = action[:120].replace("\n", " ")
     print(
-        f"[STEP] step={step} action={action_summary!r} reward={reward:.2f} done={done_val} error={error_val}",
+        f"[STEP] step={step} action={action_summary} reward={reward:.2f} done={done_val} error={error_val}",
         flush=True,
     )
 
@@ -327,7 +327,7 @@ def main():
     tasks_to_run = (
         [TASK_NAME]
         if TASK_NAME != "all"
-        else ["eligibility_screening", "ae_classification", "protocol_amendment_review"]
+        else ["eligibility_screening", "ae_classification", "protocol_amendment_review", "medication_reconciliation"]
     )
 
     all_scores = {}

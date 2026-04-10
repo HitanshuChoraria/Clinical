@@ -234,7 +234,7 @@ def grade_task1(findings: List[Dict], rationale: str) -> Tuple[float, str]:
         pts += 20
         feedback_parts.append("✓ PT-001 correctly not flagged as violation (+20)")
 
-    score = max(0.01, min(0.99, pts / max_pts))
+    score = max(0.0, min(1.0, pts / max_pts))
     feedback = f"Task 1 Score: {pts}/{max_pts} ({score:.2f})\n" + "\n".join(feedback_parts)
     return score, feedback
 
@@ -486,7 +486,7 @@ def grade_task2(findings: List[Dict], rationale: str) -> Tuple[float, str]:
         pts += 10
         feedback_parts.append("✓ No false positives on correctly classified AEs (+10)")
 
-    score = max(0.01, min(0.99, pts / max_pts))
+    score = max(0.0, min(1.0, pts / max_pts))
     feedback = f"Task 2 Score: {pts}/{max_pts} ({score:.2f})\n" + "\n".join(feedback_parts)
     return score, feedback
 
@@ -661,7 +661,7 @@ def grade_task3(findings: List[Dict], rationale: str) -> Tuple[float, str]:
         pts += 5
         feedback_parts.append(f"✓ {n_recommendations} actionable recommendations provided (+5)")
     
-    score = max(0.01, min(0.99, pts / max_pts))
+    score = max(0.0, min(1.0, pts / max_pts))
     feedback = f"Task 3 Score: {pts:.1f}/{max_pts} ({score:.2f})\n" + "\n".join(feedback_parts)
     return score, feedback
 
@@ -710,7 +710,7 @@ def grade_task4(findings: List[Dict], rationale: str) -> Tuple[float, str]:
     if pt403:
         pts += 20.0
         feedback.append("✓ Identified PT-403 Itraconazole violation.")
-    score = max(0.01, min(0.99, pts / max_pts))
+    score = max(0.0, min(1.0, pts / max_pts))
     return score, "\n".join(feedback)
 
 
