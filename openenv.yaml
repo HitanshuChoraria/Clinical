@@ -24,7 +24,7 @@ tasks:
       for finding violations, penalty for false positives.
     grader: server.graders.eligibility_grader
     max_steps: 3
-    score_range: [0.01, 0.99]
+    score_range: (0.01, 0.99)
     expected_baseline_score: 0.35
 
   - name: ae_classification
@@ -51,6 +51,16 @@ tasks:
     max_steps: 5
     score_range: [0.01, 0.99]
     expected_baseline_score: 0.15
+
+  - name: medication_reconciliation
+    difficulty: medium
+    description: >
+      Identify prohibited concomitant medications (VKAs and CYP3A4 inhibitors)
+      in Atrial Fibrillation trial CARD-2024-550 across subject records.
+    grader: server.graders.medication_grader
+    max_steps: 3
+    score_range: [0.01, 0.99]
+    expected_baseline_score: 0.50
 
 action_space:
   type: structured_json

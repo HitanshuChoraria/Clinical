@@ -627,60 +627,91 @@ TASK3_GROUND_TRUTH_ISSUES = {
 def grade_task3(findings: List[Dict], rationale: str) -> Tuple[float, str]:
     """
     Score Task 3: Comprehensive Protocol Amendment Review
-
-    Scores based on how many ground-truth issues are identified,
-    weighted by severity and quality of the finding description.
-    Max ~100 pts.
     """
     max_pts = 100
     pts = 0
     feedback_parts = []
 
-    # Split scoring: 60% from structured findings, 40% from rationale
     findings_text = _normalize(" ".join(
         f.get("description", "") + " " + f.get("recommendation", "")
         for f in findings
     ))
     rationale_text = _normalize(rationale)
-
-    # Penalize essay-dumping: if fewer than 4 findings, reduce findings weight
     findings_weight = 0.6 if len(findings) >= 4 else 0.3
 
     for issue_key, issue in TASK3_GROUND_TRUTH_ISSUES.items():
         keywords = issue["keywords"]
         weight = issue["weight"]
-
         hits_findings = sum(1 for k in keywords if k in findings_text)
         hits_rationale = sum(1 for k in keywords if k in rationale_text)
-
-        # Weighted hit rate
         hit_rate = (
             (hits_findings / len(keywords)) * findings_weight +
             (hits_rationale / len(keywords)) * (1 - findings_weight)
         )
         issue_score = hit_rate * weight
-        pts += issue_score  # BUG FIX: was missing this accumulation line
+        pts += issue_score
 
         if issue_score > weight * 0.5:
             feedback_parts.append(f"✓ {issue_key} identified (+{issue_score:.1f})")
         else:
             feedback_parts.append(f"✗ {issue_key} missed or insufficient (+{issue_score:.1f})")
 
-    # Bonus for structured, actionable recommendations
-    n_recommendations = sum(
-        1 for f in findings
-        if len(f.get("recommendation", "")) > 30
-    )
+    n_recommendations = sum(1 for f in findings if len(f.get("recommendation", "")) > 30)
     if n_recommendations >= 5:
         pts += 5
         feedback_parts.append(f"✓ {n_recommendations} actionable recommendations provided (+5)")
-    elif n_recommendations >= 3:
-        pts += 3
-        feedback_parts.append(f"~ {n_recommendations} recommendations provided (+3)")
-
+    
     score = max(0.01, min(0.99, pts / max_pts))
     feedback = f"Task 3 Score: {pts:.1f}/{max_pts} ({score:.2f})\n" + "\n".join(feedback_parts)
     return score, feedback
+
+
+# ===========================================================================
+# TASK 4 — Easy/Medium: Medication Reconciliation
+# ===========================================================================
+
+TASK4_PROTOCOL_SUMMARY = """
+TRIAL: CARD-2024-550 Phase II — Investigational drug RX-9 for Atrial Fibrillation.
+
+PROHIBITED MEDICATIONS:
+  - Any Vitamin K Antagonist (VKA), including Warfarin (Coumadin).
+  - Strong CYP3A4 inhibitors (e.g., Ketoconazole, Itraconazole).
+  - Investigational products from other trials.
+"""
+
+TASK4_PATIENT_RECORDS = [
+    {
+        "subject_id": "PT-401",
+        "medications": ["Aspirin", "Lisinopril", "Metformin"],
+        "notes": "Compliant patient."
+    },
+    {
+        "subject_id": "PT-402",
+        "medications": ["Warfarin", "Amlodipine"], # VIOLATION: Warfarin is a VKA
+        "notes": "Patient forgot to mention Warfarin during screening; discovered in pharmacy logs."
+    },
+    {
+        "subject_id": "PT-403",
+        "medications": ["RX-9", "Itraconazole"], # VIOLATION: Strong CYP3A4 inhibitor
+        "notes": "Fungal infection treated 2 weeks after start."
+    },
+]
+
+
+def grade_task4(findings: List[Dict], rationale: str) -> Tuple[float, str]:
+    pts = 0.0
+    max_pts = 40.0
+    feedback = []
+    pt402 = [f for f in findings if f.get("subject_id") == "PT-402" and _mentions_any(f.get("description", ""), ["warfarin", "vka", "prohibited"])]
+    if pt402:
+        pts += 20.0
+        feedback.append("✓ Identified PT-402 Warfarin violation.")
+    pt403 = [f for f in findings if f.get("subject_id") == "PT-403" and _mentions_any(f.get("description", ""), ["itraconazole", "cyp3a4"])]
+    if pt403:
+        pts += 20.0
+        feedback.append("✓ Identified PT-403 Itraconazole violation.")
+    score = max(0.01, min(0.99, pts / max_pts))
+    return score, "\n".join(feedback)
 
 
 # ===========================================================================
@@ -720,5 +751,16 @@ TASKS = {
         "adverse_events": [],
         "protocol_text": TASK3_PROTOCOL_TEXT,
         "grader": grade_task3,
+    },
+    "medication_reconciliation": {
+        "name": "medication_reconciliation",
+        "difficulty": "medium",
+        "description": "Identify prohibited concomitant medications in Atrial Fibrillation trial CARD-2024-550.",
+        "max_steps": 3,
+        "protocol_summary": TASK4_PROTOCOL_SUMMARY,
+        "patient_records": TASK4_PATIENT_RECORDS,
+        "adverse_events": [],
+        "protocol_text": "",
+        "grader": grade_task4,
     },
 }
