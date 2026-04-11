@@ -25,4 +25,4 @@ server = "server.app:main"
 name = "clinical-trial-env"
 version = "1.0.0"
 entrypoint = "server/app.py"
-tasks = ["eligibility_screening", "ae_classification", "protocol_amendment_review"]
+tasks = ["eligibility_screening", "ae_classification", "protocol_amendment_review", "medication_reconciliation"]

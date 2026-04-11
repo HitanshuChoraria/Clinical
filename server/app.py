@@ -102,6 +102,7 @@ def metadata():
         "version": "1.0.0",
         "tasks": [
             {
+                "id": task_id,
                 "name": t["name"],
                 "difficulty": t["difficulty"],
                 "description": t["description"],
@@ -110,7 +111,7 @@ def metadata():
                 "grader": t["grader_path"],
                 "score_range": [0.0, 1.0],
             }
-            for t in TASKS.values()
+            for task_id, t in TASKS.items()
         ],
     }
 
