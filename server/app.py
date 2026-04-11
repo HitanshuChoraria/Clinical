@@ -107,8 +107,8 @@ def metadata():
                 "description": t["description"],
                 "max_steps": t["max_steps"],
                 "has_grader": True,
-                "grader": "defined",
-                "score_range": [0.0, 1.0],
+                "grader": t["grader_path"],
+                "score_range": [0.01, 0.99],
             }
             for t in TASKS.values()
         ],
@@ -242,8 +242,8 @@ def list_tasks():
                 "description": t["description"],
                 "max_steps": t["max_steps"],
                 "has_grader": True,
-                "grader": "defined",
-                "score_range": [0.0, 1.0],
+                "grader": t["grader_path"],
+                "score_range": [0.01, 0.99],
             }
             for t in TASKS.values()
         ]
