@@ -730,6 +730,7 @@ TASKS = {
         "protocol_text": "",
         "grader": grade_task1,
         "grader_path": "server.graders.eligibility_grader",
+        "expected_baseline_score": 0.35,
     },
     "ae_classification": {
         "name": "ae_classification",
@@ -742,6 +743,7 @@ TASKS = {
         "protocol_text": "",
         "grader": grade_task2,
         "grader_path": "server.graders.ae_grader",
+        "expected_baseline_score": 0.22,
     },
     "protocol_amendment_review": {
         "name": "protocol_amendment_review",
@@ -754,6 +756,7 @@ TASKS = {
         "protocol_text": TASK3_PROTOCOL_TEXT,
         "grader": grade_task3,
         "grader_path": "server.graders.protocol_grader",
+        "expected_baseline_score": 0.15,
     },
     "medication_reconciliation": {
         "name": "medication_reconciliation",
@@ -766,5 +769,6 @@ TASKS = {
         "protocol_text": "",
         "grader": grade_task4,
         "grader_path": "server.graders.medication_grader",
+        "expected_baseline_score": 0.50,
     },
 }

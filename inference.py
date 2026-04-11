@@ -92,22 +92,14 @@ def log_start(task: str, env: str, model: str) -> None:
     print(f"[START] task={task} env={env} model={model}", flush=True)
 
 
-def log_step(step: int, action: str, reward: float, done: bool, error: Optional[str]) -> None:
-    error_val = error if error else "null"
-    done_val  = str(done).lower()
-    action_summary = action[:120].replace("\n", " ")
-    print(
-        f"[STEP] step={step} action={action_summary} reward={reward:.2f} done={done_val} error={error_val}",
-        flush=True,
-    )
+def log_step(step: int, reward: float, done: bool) -> None:
+    done_val = str(done).lower()
+    print(f"[STEP] step={step} reward={reward:.4f} done={done_val}", flush=True)
 
 
-def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> None:
-    rewards_str = ",".join(f"{r:.2f}" for r in rewards)
-    print(
-        f"[END] success={str(success).lower()} steps={steps} score={score:.2f} rewards={rewards_str}",
-        flush=True,
-    )
+def log_end(task: str, success: bool, score: float, steps: int) -> None:
+    success_val = str(success).lower()
+    print(f"[END] task={task} score={score:.4f} steps={steps} success={success_val}", flush=True)
 
 
 # ---------------------------------------------------------------------------
@@ -304,10 +296,8 @@ def run_task(task_name: str) -> Tuple[float, bool, int, List[float]]:
 
             log_step(
                 step=step,
-                action=f"{len(findings)} findings, rationale={rationale[:60]}",
                 reward=reward,
                 done=done,
-                error=None,
             )
 
             if done:
@@ -318,7 +308,7 @@ def run_task(task_name: str) -> Tuple[float, bool, int, List[float]]:
     except Exception as e:
         print(f"[DEBUG] Task failed: {e}", flush=True)
 
-    log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
+    log_end(task=task, success=success, score=score, steps=steps_taken)
     return score, success, steps_taken, rewards
 
 

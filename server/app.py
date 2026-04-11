@@ -108,8 +108,9 @@ def metadata():
                 "description": t["description"],
                 "max_steps": t["max_steps"],
                 "has_grader": True,
-                "grader": t["grader_path"],
+                "grader": f"server.graders.{task_id.split('_')[0]}_grader" if "_" in task_id else t["grader_path"],
                 "score_range": [0.0, 1.0],
+                "expected_baseline_score": t.get("expected_baseline_score", 0.2),
             }
             for task_id, t in TASKS.items()
         ],

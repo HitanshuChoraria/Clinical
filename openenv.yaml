@@ -89,9 +89,9 @@ reward:
   type: continuous
   range: [0.0, 1.0]
   description: >
-    Incremental reward per step = improvement in grader score since last step.
-    Final reward is strictly within (0, 1) — never 0 or 1.
-    Empty/trivial actions receive a floor reward of 0.01 (never 0).
+    Current absolute score from the task grader.
+    Scores are strictly within (0.01, 0.99) — never 0 or 1.
+    Empty/trivial actions receive a floor score of 0.01.
 
 endpoints:
   health: /health
