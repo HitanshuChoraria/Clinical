@@ -22,7 +22,7 @@ tasks:
       identify all eligibility violations against inclusion/exclusion criteria.
       4 of 5 patients have violations; 1 is correctly enrolled. Partial credit
       for finding violations, penalty for false positives.
-    grader: server.graders.eligibility_grader
+    grader: server.graders:eligibility_grader
     max_steps: 3
     score_range: [0.01, 0.99]
     expected_baseline_score: 0.35
@@ -34,7 +34,7 @@ tasks:
       and identify all misclassifications by severity grade. 4 of 7 AEs are
       misclassified; agents must identify wrong grades, suggest corrections,
       and flag missing SAE reports. Penalized for false positives.
-    grader: server.graders.ae_grader
+    grader: server.graders:ae_grader
     max_steps: 4
     score_range: [0.01, 0.99]
     expected_baseline_score: 0.22
@@ -47,7 +47,7 @@ tasks:
       critical safety issues, GCP compliance failures, and statistical gaps.
       8 ground-truth issues with weighted scoring. Requires deep domain knowledge
       of ICH guidelines, FDA/EMA requirements, and psychiatric trial design.
-    grader: server.graders.protocol_grader
+    grader: server.graders:protocol_grader
     max_steps: 5
     score_range: [0.01, 0.99]
     expected_baseline_score: 0.15
@@ -57,7 +57,7 @@ tasks:
     description: >
       Identify prohibited concomitant medications (VKAs and CYP3A4 inhibitors)
       in Atrial Fibrillation trial CARD-2024-550 across subject records.
-    grader: server.graders.medication_grader
+    grader: server.graders:medication_grader
     max_steps: 3
     score_range: [0.01, 0.99]
     expected_baseline_score: 0.50

@@ -729,7 +729,7 @@ TASKS = {
         "adverse_events": [],
         "protocol_text": "",
         "grader": grade_task1,
-        "grader_path": "server.graders.eligibility_grader",
+        "grader_path": "server.graders:eligibility_grader",
     },
     "ae_classification": {
         "name": "ae_classification",
@@ -741,7 +741,7 @@ TASKS = {
         "adverse_events": TASK2_ADVERSE_EVENTS,
         "protocol_text": "",
         "grader": grade_task2,
-        "grader_path": "server.graders.ae_grader",
+        "grader_path": "server.graders:ae_grader",
     },
     "protocol_amendment_review": {
         "name": "protocol_amendment_review",
@@ -753,7 +753,7 @@ TASKS = {
         "adverse_events": [],
         "protocol_text": TASK3_PROTOCOL_TEXT,
         "grader": grade_task3,
-        "grader_path": "server.graders.protocol_grader",
+        "grader_path": "server.graders:protocol_grader",
     },
     "medication_reconciliation": {
         "name": "medication_reconciliation",
@@ -765,6 +765,6 @@ TASKS = {
         "adverse_events": [],
         "protocol_text": "",
         "grader": grade_task4,
-        "grader_path": "server.graders.medication_grader",
+        "grader_path": "server.graders:medication_grader",
     },
 }
