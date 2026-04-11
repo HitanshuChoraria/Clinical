@@ -23,8 +23,8 @@ class ClinicalTrialEnv:
         self._all_findings = []
         self._all_rationale = ""
 
-        # ⚠️ start inside (0,1)
-        self._last_score = 0.0
+        # ⚠️ strictly inside (0,1) — never 0 or 1
+        self._last_score = 0.01
         self._last_feedback = ""
 
         self._history = []
@@ -40,7 +40,7 @@ class ClinicalTrialEnv:
         self._all_findings = []
         self._all_rationale = ""
 
-        self._last_score = 0.0
+        self._last_score = 0.01  # strictly > 0
         self._last_feedback = ""
         self._history = []
         self._start_time = time.time()
@@ -49,7 +49,7 @@ class ClinicalTrialEnv:
 
         return StepResult(
             observation=obs,
-            reward=0.0,   # Status quo
+            reward=0.01,  # strictly inside (0,1) — status quo minimum
             done=False,
             info={}
         )
@@ -77,19 +77,19 @@ class ClinicalTrialEnv:
             new_score = result
             feedback = ""
 
-        # Clamp score strictly inside [0.0, 1.0]
+        # Clamp score strictly inside (0.01, 0.99) — open interval, never 0 or 1
         new_score = float(new_score)
-        new_score = min(max(new_score, 0.0), 1.0)
+        new_score = min(max(new_score, 0.01), 0.99)
 
         # Reward = incremental improvement over previous score
         reward = new_score - self._last_score
 
-        # Clamp reward to valid [0.0, 1.0] range per OpenEnv spec
-        reward = min(max(reward, 0.0), 1.0)
+        # Clamp reward strictly inside (0.01, 0.99) per OpenEnv open-interval spec
+        reward = min(max(reward, 0.01), 0.99)
 
-        # Minimal penalty for empty actions — stays within valid range
+        # Minimal reward for empty actions — never 0
         if not action.findings and not action.rationale.strip():
-            reward = 0.0
+            reward = 0.01
 
         max_steps = self._task["max_steps"]
         done = self._step >= max_steps

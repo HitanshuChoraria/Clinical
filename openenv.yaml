@@ -24,7 +24,7 @@ tasks:
       for finding violations, penalty for false positives.
     grader: server.graders.eligibility_grader
     max_steps: 3
-    score_range: [0.0, 1.0]
+    score_range: (0.01, 0.99)  # open interval — 0 and 1 are never returned
     expected_baseline_score: 0.35
 
   - name: ae_classification
@@ -36,7 +36,7 @@ tasks:
       and flag missing SAE reports. Penalized for false positives.
     grader: server.graders.ae_grader
     max_steps: 4
-    score_range: [0.0, 1.0]
+    score_range: (0.01, 0.99)  # open interval — 0 and 1 are never returned
     expected_baseline_score: 0.22
 
   - name: protocol_amendment_review
@@ -49,7 +49,7 @@ tasks:
       of ICH guidelines, FDA/EMA requirements, and psychiatric trial design.
     grader: server.graders.protocol_grader
     max_steps: 5
-    score_range: [0.0, 1.0]
+    score_range: (0.01, 0.99)  # open interval — 0 and 1 are never returned
     expected_baseline_score: 0.15
 
   - name: medication_reconciliation
@@ -59,7 +59,7 @@ tasks:
       in Atrial Fibrillation trial CARD-2024-550 across subject records.
     grader: server.graders.medication_grader
     max_steps: 3
-    score_range: [0.0, 1.0]
+    score_range: (0.01, 0.99)  # open interval — 0 and 1 are never returned
     expected_baseline_score: 0.50
 
 action_space:
@@ -98,11 +98,11 @@ observation_space:
 
 reward:
   type: continuous
-  range: [0.0, 1.0]
+  range: (0.01, 0.99)  # open interval — 0 and 1 are strictly excluded
   description: >
     Incremental reward per step = improvement in grader score since last step.
-    Final reward accumulates to normalized score strictly within (0,1).
-    Empty/trivial actions incur small penalty but never reach 0.
+    Final reward is strictly within (0, 1) — never 0 or 1.
+    Empty/trivial actions receive a floor reward of 0.01 (never 0).
 
 endpoints:
   health: /health

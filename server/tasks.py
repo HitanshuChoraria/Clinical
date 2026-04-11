@@ -2,7 +2,7 @@
 Task definitions for the Clinical Trial Protocol Review environment.
 Each task has:
   - A scenario (protocol + patient records + adverse events)
-  - A deterministic grader returning a score in [0.0, 1.0]
+  - A deterministic grader returning a score strictly in (0.0, 1.0) — i.e. (0.01, 0.99) clamped
   - A difficulty: easy | medium | hard
 """
 
@@ -142,7 +142,7 @@ def grade_task1(findings: List[Dict], rationale: str) -> Tuple[float, str]:
     - PT-003 has 2 violations; partial credit (10 pts) if only one is found
     - PT-005 has 2 violations; partial credit (10 pts) if only one is found
     - PT-001 false-positive flag: -10 pts
-    - Max: 100 pts -> normalized to [0.01, 0.99]
+    - Max: 100 pts -> normalized strictly to (0.01, 0.99) — 0 and 1 are excluded
     """
     max_pts = 100
     pts = 0
@@ -234,7 +234,7 @@ def grade_task1(findings: List[Dict], rationale: str) -> Tuple[float, str]:
         pts += 20
         feedback_parts.append("✓ PT-001 correctly not flagged as violation (+20)")
 
-    score = max(0.0, min(1.0, pts / max_pts))
+    score = max(0.01, min(0.99, pts / max_pts))  # strictly open interval (0, 1)
     feedback = f"Task 1 Score: {pts}/{max_pts} ({score:.2f})\n" + "\n".join(feedback_parts)
     return score, feedback
 
@@ -486,7 +486,7 @@ def grade_task2(findings: List[Dict], rationale: str) -> Tuple[float, str]:
         pts += 10
         feedback_parts.append("✓ No false positives on correctly classified AEs (+10)")
 
-    score = max(0.0, min(1.0, pts / max_pts))
+    score = max(0.01, min(0.99, pts / max_pts))  # strictly open interval (0, 1)
     feedback = f"Task 2 Score: {pts}/{max_pts} ({score:.2f})\n" + "\n".join(feedback_parts)
     return score, feedback
 
@@ -661,7 +661,7 @@ def grade_task3(findings: List[Dict], rationale: str) -> Tuple[float, str]:
         pts += 5
         feedback_parts.append(f"✓ {n_recommendations} actionable recommendations provided (+5)")
     
-    score = max(0.0, min(1.0, pts / max_pts))
+    score = max(0.01, min(0.99, pts / max_pts))  # strictly open interval (0, 1)
     feedback = f"Task 3 Score: {pts:.1f}/{max_pts} ({score:.2f})\n" + "\n".join(feedback_parts)
     return score, feedback
 
@@ -710,7 +710,7 @@ def grade_task4(findings: List[Dict], rationale: str) -> Tuple[float, str]:
     if pt403:
         pts += 20.0
         feedback.append("✓ Identified PT-403 Itraconazole violation.")
-    score = max(0.0, min(1.0, pts / max_pts))
+    score = max(0.01, min(0.99, pts / max_pts))  # strictly open interval (0, 1)
     return score, "\n".join(feedback)
 
 
