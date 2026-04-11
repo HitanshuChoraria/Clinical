@@ -89,26 +89,32 @@ SUCCESS_SCORE_THRESHOLD = 0.4
 # ---------------------------------------------------------------------------
 
 def log_start(task: str, env: str, model: str) -> None:
-    print(f"[START] task={task} env={env} model={model}", flush=True)
+    print(json.dumps({
+        "type":    "START",
+        "task_id": task,
+        "env":     env,
+        "model":   model,
+    }), flush=True)
 
 
 def log_step(step: int, action: str, reward: float, done: bool, error: Optional[str]) -> None:
-    error_val = error if error else "null"
-    done_val  = str(done).lower()
-    action_summary = action[:120].replace("\n", " ")
-    print(
-        f"[STEP] step={step} action={action_summary} reward={reward:.2f} done={done_val} error={error_val}",
-        flush=True,
-    )
+    print(json.dumps({
+        "type":   "STEP",
+        "step":   step,
+        "reward": round(float(reward), 4),
+        "done":   done,
+        "error":  error,
+    }), flush=True)
 
 
 def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> None:
-    rewards_str = ",".join(f"{r:.2f}" for r in rewards)
-    # score formatted to 2 decimal places per spec
-    print(
-        f"[END] success={str(success).lower()} steps={steps} score={score:.2f} rewards={rewards_str}",
-        flush=True,
-    )
+    print(json.dumps({
+        "type":    "END",
+        "success": success,
+        "steps":   steps,
+        "score":   round(float(score), 4),
+        "rewards": [round(float(r), 4) for r in rewards],
+    }), flush=True)
 
 
 # ---------------------------------------------------------------------------

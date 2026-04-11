@@ -3,10 +3,12 @@ import sys
 import os
 from typing import Any, Dict, List, Optional
 
-# Add the current directory to sys.path so we can import tasks
-sys.path.insert(0, os.path.dirname(__file__))
-
-import tasks
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from server import tasks
+except ImportError:
+    import tasks
 
 def eligibility_grader(output: Dict[str, Any], expected: Optional[Any] = None) -> float:
     """External entry point for OpenEnv validator."""

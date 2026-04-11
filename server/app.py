@@ -234,20 +234,19 @@ def mcp(payload: Dict[str, Any] = {}):
 
 @app.get("/tasks")
 def list_tasks():
-    return {
-        "tasks": [
-            {
-                "name": t["name"],
-                "difficulty": t["difficulty"],
-                "description": t["description"],
-                "max_steps": t["max_steps"],
-                "has_grader": True,
-                "grader": t["grader_path"],
-                "score_range": [0.0, 1.0],
-            }
-            for t in TASKS.values()
-        ]
-    }
+    return [                          # ← bare list, NOT wrapped in {"tasks": [...]}
+        {
+            "id": task_id,           # ← added
+            "name": t["name"],
+            "difficulty": t["difficulty"],
+            "description": t["description"],
+            "max_steps": t["max_steps"],
+            "has_grader": True,
+            "grader": t["grader_path"],
+            "score_range": [0.0, 1.0],
+        }
+        for task_id, t in TASKS.items()   # ← .items() not .values()
+    ]
 
 
 @app.post("/reset")

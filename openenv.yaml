@@ -15,48 +15,37 @@ tags:
   - safety
 
 tasks:
-  - name: eligibility_screening
+  - id: eligibility_screening        # ← ADD
+    name: eligibility_screening
     difficulty: easy
-    description: >
-      Review 5 patient records for ONCO-2024-301 (Phase II oncology trial) and
-      identify all eligibility violations against inclusion/exclusion criteria.
-      4 of 5 patients have violations; 1 is correctly enrolled. Partial credit
-      for finding violations, penalty for false positives.
+    has_grader: true                 # ← ADD
     grader: server.graders.eligibility_grader
     max_steps: 3
     score_range: [0.0, 1.0]
     expected_baseline_score: 0.35
 
-  - name: ae_classification
+  - id: ae_classification            # ← ADD
+    name: ae_classification
     difficulty: medium
-    description: >
-      Review 7 adverse event reports in CARD-2024-112 (Phase III cardiology trial)
-      and identify all misclassifications by severity grade. 4 of 7 AEs are
-      misclassified; agents must identify wrong grades, suggest corrections,
-      and flag missing SAE reports. Penalized for false positives.
+    has_grader: true                 # ← ADD
     grader: server.graders.ae_grader
     max_steps: 4
     score_range: [0.0, 1.0]
     expected_baseline_score: 0.22
 
-  - name: protocol_amendment_review
+  - id: protocol_amendment_review    # ← ADD
+    name: protocol_amendment_review
     difficulty: hard
-    description: >
-      Comprehensively review 6 proposed protocol amendments for NEURO-2024-450
-      (Phase II psychiatric trial for treatment-resistant depression). Identify
-      critical safety issues, GCP compliance failures, and statistical gaps.
-      8 ground-truth issues with weighted scoring. Requires deep domain knowledge
-      of ICH guidelines, FDA/EMA requirements, and psychiatric trial design.
+    has_grader: true                 # ← ADD
     grader: server.graders.protocol_grader
     max_steps: 5
     score_range: [0.0, 1.0]
     expected_baseline_score: 0.15
 
-  - name: medication_reconciliation
+  - id: medication_reconciliation    # ← ADD
+    name: medication_reconciliation
     difficulty: medium
-    description: >
-      Identify prohibited concomitant medications (VKAs and CYP3A4 inhibitors)
-      in Atrial Fibrillation trial CARD-2024-550 across subject records.
+    has_grader: true                 # ← ADD
     grader: server.graders.medication_grader
     max_steps: 3
     score_range: [0.0, 1.0]
