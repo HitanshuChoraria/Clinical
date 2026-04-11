@@ -28,8 +28,11 @@ async function init() {
         renderTaskList();
         
         if (allTasks.length > 0) {
-            const lastTask = localStorage.getItem('last_task') || allTasks[0].name;
-            await selectTask(lastTask);
+            const firstTask = allTasks[0].id || allTasks[0].name;
+            const lastTask = localStorage.getItem('last_task') || firstTask;
+            // Verify lastTask exists in current allTasks
+            const taskExists = allTasks.some(t => (t.id || t.name) === lastTask);
+            await selectTask(taskExists ? lastTask : firstTask);
         }
         
         updateStatus('Systems Operational', 'success');
@@ -64,29 +67,39 @@ function showNotification(msg, type = 'info') {
  */
 function renderTaskList() {
     const list = document.getElementById('task-list');
-    list.innerHTML = allTasks.map(t => `
-        <li class="task-item ${currentTask === t.name ? 'active' : ''}" onclick="selectTask('${t.name}')">
-            <h4>${formatName(t.name)}</h4>
-            <span class="badge">Security Level: ${t.difficulty}</span>
-        </li>
-    `).join('');
+    list.innerHTML = allTasks.map(t => {
+        const id = t.id || t.name;
+        const name = t.name || id;
+        return `
+            <li class="task-item ${currentTask === id ? 'active' : ''}" onclick="selectTask('${id}')">
+                <h4>${formatName(name)}</h4>
+                <span class="badge">Security Level: ${t.difficulty}</span>
+            </li>
+        `;
+    }).join('');
 }
 
 function formatName(name) {
     return name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 }
 
-async function selectTask(name) {
-    if (name === currentTask && state.observation) return;
+async function selectTask(taskId) {
+    if (taskId === currentTask && state.observation) return;
     
-    currentTask = name;
-    localStorage.setItem('last_task', name);
+    const taskInfo = allTasks.find(t => (t.id || t.name) === taskId);
+    if (!taskInfo) {
+        console.error('Task not found:', taskId);
+        return;
+    }
+
+    currentTask = taskId;
+    localStorage.setItem('last_task', taskId);
     renderTaskList();
     
-    const taskInfo = allTasks.find(t => t.name === name);
-    document.getElementById('current-task-name').innerText = formatName(name);
-    document.getElementById('breadcrumb-task').innerText = formatName(name);
-    document.getElementById('task-difficulty').innerText = taskInfo.difficulty.toUpperCase();
+    const displayName = taskInfo.name || taskId;
+    document.getElementById('current-task-name').innerText = formatName(displayName);
+    document.getElementById('breadcrumb-task').innerText = formatName(displayName);
+    document.getElementById('task-difficulty').innerText = (taskInfo.difficulty || 'unknown').toUpperCase();
     
     await resetTask();
 }
