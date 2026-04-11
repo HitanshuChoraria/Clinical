@@ -7,4 +7,4 @@ venv/
 .DS_Store
 .idea/
 .vscode/
-uv.lock
+# uv.lock removed as it is required for deployment
