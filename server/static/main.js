@@ -23,7 +23,7 @@ async function init() {
         if (!res.ok) throw new Error('API Unavailable');
         
         const data = await res.json();
-        allTasks = data.tasks;
+        allTasks = data;              // ← bare list now
         
         renderTaskList();
         
