@@ -308,7 +308,7 @@ def run_task(task_name: str) -> Tuple[float, bool, int, List[float]]:
     except Exception as e:
         print(f"[DEBUG] Task failed: {e}", flush=True)
 
-    log_end(task=task, success=success, score=score, steps=steps_taken)
+    log_end(task=task_name, success=success, score=score, steps=steps_taken)
     return score, success, steps_taken, rewards
 
 
